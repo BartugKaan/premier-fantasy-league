@@ -1,12 +1,16 @@
 package com.pl.premier_zone.player;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+@Service
 @Component
 public class PlayerService {
     private  final IPlayerRepository _playerRepository;
@@ -16,54 +20,14 @@ public class PlayerService {
         this._playerRepository = playerRepository;
     }
 
-    public List<Player> getPlayers(){
-        return _playerRepository.findAll();
-    }
+    public Page<Player> getPlayers(String team, String name, String position, String nation, Pageable pageable) {
+        Specification<Player> spec = Specification.<Player>unrestricted()
+                .and(PlayerSpecifications.hasTeam(team))
+                .and(PlayerSpecifications.hasNameLike(name))
+                .and(PlayerSpecifications.hasPosition(position))
+                .and(PlayerSpecifications.hasNation(nation));
 
-    public List<Player> getPlayersFromTeam(String teamName){
-        return  _playerRepository
-                .findAll()
-                .stream()
-                .filter(p -> teamName.equals(p.getTeam()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Player> getPlayersFromName(String searchText){
-        return  _playerRepository
-                .findAll()
-                .stream()
-                .filter(p -> p.getName()
-                        .toLowerCase()
-                        .contains(searchText.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Player> getPlayersByPosition(String position){
-        return  _playerRepository
-                .findAll()
-                .stream()
-                .filter(p -> p.getTeam()
-                        .toLowerCase()
-                        .contains(position.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Player> getPlayersByNation(String nation){
-        return _playerRepository
-                .findAll()
-                .stream()
-                .filter(p -> p.getNation()
-                        .toLowerCase()
-                        .contains(nation.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    public List<Player> getPlayersByTeamAndPosition(String team, String position){
-        return _playerRepository
-                .findAll()
-                .stream()
-                .filter(p -> team.equals(p.getTeam()) && position.equals(p.getPos()))
-                .collect(Collectors.toList());
+        return _playerRepository.findAll(spec, pageable);
     }
 
     public Player addPlayer(Player player){
@@ -86,7 +50,10 @@ public class PlayerService {
         return null;
     }
 
+    @Transactional
     public void deletePlayer(String playerName){
-        _playerRepository.deleteByName(playerName);
+        Optional<Player> player = _playerRepository.findByName(playerName);
+
+        player.ifPresent(_playerRepository::delete);
     }
 }
