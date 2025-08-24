@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -37,7 +38,55 @@ public class PlayerService {
                 .collect(Collectors.toList());
     }
 
+    public List<Player> getPlayersByPosition(String position){
+        return  _playerRepository
+                .findAll()
+                .stream()
+                .filter(p -> p.getTeam()
+                        .toLowerCase()
+                        .contains(position.toLowerCase()))
+                .collect(Collectors.toList());
+    }
 
+    public List<Player> getPlayersByNation(String nation){
+        return _playerRepository
+                .findAll()
+                .stream()
+                .filter(p -> p.getNation()
+                        .toLowerCase()
+                        .contains(nation.toLowerCase()))
+                .collect(Collectors.toList());
+    }
 
+    public List<Player> getPlayersByTeamAndPosition(String team, String position){
+        return _playerRepository
+                .findAll()
+                .stream()
+                .filter(p -> team.equals(p.getTeam()) && position.equals(p.getPos()))
+                .collect(Collectors.toList());
+    }
 
+    public Player addPlayer(Player player){
+        _playerRepository.save(player);
+        return player;
+    }
+
+    public Player updatePlayer(Player updatedPlayer){
+        Optional<Player> existingPlayer = _playerRepository.findByName(updatedPlayer.getName());
+
+        if (existingPlayer.isPresent()) {
+            Player playerToUpdate = existingPlayer.get();
+            playerToUpdate.setName(updatedPlayer.getName());
+            playerToUpdate.setTeam(updatedPlayer.getTeam());
+            playerToUpdate.setPos(updatedPlayer.getPos());
+            playerToUpdate.setNation(updatedPlayer.getNation());
+            _playerRepository.save(playerToUpdate);
+            return playerToUpdate;
+        }
+        return null;
+    }
+
+    public void deletePlayer(String playerName){
+        _playerRepository.deleteByName(playerName);
+    }
 }
