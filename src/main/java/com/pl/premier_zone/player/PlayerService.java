@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,14 +36,18 @@ public class PlayerService {
         return player;
     }
 
+    public List<Player> getAllPlayer(){
+        return _playerRepository.findAll();
+    }
+
     public Player updatePlayer(Player updatedPlayer){
-        Optional<Player> existingPlayer = _playerRepository.findByName(updatedPlayer.getName());
+        Optional<Player> existingPlayer = _playerRepository.findByPlayerName(updatedPlayer.getPlayerName());
 
         if (existingPlayer.isPresent()) {
             Player playerToUpdate = existingPlayer.get();
-            playerToUpdate.setName(updatedPlayer.getName());
-            playerToUpdate.setTeam(updatedPlayer.getTeam());
-            playerToUpdate.setPos(updatedPlayer.getPos());
+            playerToUpdate.setPlayerName(updatedPlayer.getPlayerName());
+            playerToUpdate.setTeamName(updatedPlayer.getTeamName());
+            playerToUpdate.setPosition(updatedPlayer.getPosition());
             playerToUpdate.setNation(updatedPlayer.getNation());
             _playerRepository.save(playerToUpdate);
             return playerToUpdate;
@@ -52,7 +57,7 @@ public class PlayerService {
 
     @Transactional
     public void deletePlayer(String playerName){
-        Optional<Player> player = _playerRepository.findByName(playerName);
+        Optional<Player> player = _playerRepository.findByPlayerName(playerName);
 
         player.ifPresent(_playerRepository::delete);
     }

@@ -1,8 +1,11 @@
 package com.pl.premier_zone.player;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,10 +28,17 @@ public class PlayerController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String position,
             @RequestParam(required = false) String nation,
+            @ParameterObject
+            @PageableDefault(size = 20, sort = "playerName", direction = Sort.Direction.ASC)
             Pageable pageable
 
     ){
         return  playerService.getPlayers(team, name, position, nation, pageable);
+    }
+
+    @GetMapping("/all")
+    public List<Player> getAllPlayers(){
+        return playerService.getAllPlayer();
     }
 
     @PostMapping

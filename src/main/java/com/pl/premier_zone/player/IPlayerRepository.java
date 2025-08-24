@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface IPlayerRepository extends JpaRepository<Player, String>, JpaSpecificationExecutor<Player> {
 
-    void deleteByName(String name);
-    Optional<Player> findByName(String name);
+    void deleteByPlayerName(String playerName);
+    Optional<Player> findByPlayerName(String playerName);
 
 }

@@ -11,14 +11,14 @@ public class PlayerSpecifications {
         return (root, q, cb) ->
                 (team == null || team.isBlank())
                 ? cb.conjunction()
-                        : cb.equal(cb.lower(root.get("team")), team.toLowerCase());
+                        : cb.equal(cb.lower(root.get("teamName")), team.toLowerCase());
     }
 
     public static Specification<Player> hasNameLike(String name){
         return (root, q, cb) ->
                 (name == null || name.isBlank())
                         ? cb.conjunction()
-                        : cb.equal(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+                        : cb.like(cb.lower(root.get("playerName")), "%" + name.toLowerCase() + "%");
     }
 
     public static Specification<Player> hasPosition(String position){
